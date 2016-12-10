@@ -418,14 +418,10 @@ probe_cb(void *cb_ctx, const struct spdk_nvme_probe_info *probe_info,
 		       probe_info->pci_addr.dev,
 		       probe_info->pci_addr.func);
 
-	if (ctx->controllers_remaining == 0) {
-		return false;
-	}
-
 	if (ctx->num_whitelist_controllers == 0) {
 		claim_device = true;
 	} else {
-		for (i = 0; i < NVME_MAX_CONTROLLERS; i++) {
+		for (i = 0; i < ctx->num_whitelist_controllers; i++) {
 			if (spdk_pci_addr_compare(&probe_info->pci_addr, &ctx->whitelist[i]) == 0) {
 				claim_device = true;
 				break;
@@ -449,7 +445,6 @@ static void
 attach_cb(void *cb_ctx, const struct spdk_nvme_probe_info *probe_info,
 	  struct spdk_nvme_ctrlr *ctrlr, const struct spdk_nvme_ctrlr_opts *opts)
 {
-	struct nvme_probe_ctx *ctx = cb_ctx;
 	struct nvme_device *dev;
 
 	dev = malloc(sizeof(struct nvme_device));
@@ -466,10 +461,6 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_probe_info *probe_info,
 	spdk_io_device_register(ctrlr, blockdev_nvme_create_cb, blockdev_nvme_destroy_cb,
 				sizeof(struct nvme_io_channel));
 	TAILQ_INSERT_TAIL(&g_nvme_devices, dev, tailq);
-
-	if (ctx->controllers_remaining > 0) {
-		ctx->controllers_remaining--;
-	}
 }
 
 static bool
@@ -576,8 +567,6 @@ nvme_library_init(void)
 			probe_ctx.num_whitelist_controllers++;
 		}
 	}
-
-	probe_ctx.controllers_remaining = num_controllers;
 
 	return spdk_bdev_nvme_create(&probe_ctx);
 }

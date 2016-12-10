@@ -44,7 +44,6 @@
 #define NVME_MAX_BLOCKDEVS (NVME_MAX_BLOCKDEVS_PER_CONTROLLER * NVME_MAX_CONTROLLERS)
 
 struct nvme_probe_ctx {
-	int controllers_remaining;
 	int num_whitelist_controllers;
 	struct spdk_pci_addr whitelist[NVME_MAX_CONTROLLERS];
 

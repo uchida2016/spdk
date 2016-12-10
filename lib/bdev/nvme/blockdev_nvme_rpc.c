@@ -67,7 +67,6 @@ spdk_rpc_construct_nvme_bdev(struct spdk_jsonrpc_server_conn *conn,
 		goto invalid;
 	}
 
-	ctx.controllers_remaining = 1;
 	ctx.num_whitelist_controllers = 1;
 
 	if (spdk_pci_addr_parse(&ctx.whitelist[0], req.pci_address) < 0) {
